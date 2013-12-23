@@ -2,7 +2,7 @@ package com.rotinom.remit;
 
 import java.util.List;
 
-import com.weber.remit.R;
+import com.rotinom.remit.R;
 
 import android.app.Activity;
 import android.content.Context;

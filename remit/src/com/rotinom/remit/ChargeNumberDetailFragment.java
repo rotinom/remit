@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rotinom.remit.dummy.DummyContent;
-import com.weber.remit.R;
-import com.weber.remit.R.id;
-import com.weber.remit.R.layout;
+import com.rotinom.remit.R;
+import com.rotinom.remit.R.id;
+import com.rotinom.remit.R.layout;
 
 /**
  * A fragment representing a single ChargeNumber detail screen.

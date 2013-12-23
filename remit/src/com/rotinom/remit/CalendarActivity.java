@@ -1,8 +1,8 @@
 package com.rotinom.remit;
 
-import com.weber.remit.R;
-import com.weber.remit.R.layout;
-import com.weber.remit.R.menu;
+import com.rotinom.remit.R;
+import com.rotinom.remit.R.layout;
+import com.rotinom.remit.R.menu;
 
 import android.os.Bundle;
 import android.app.Activity;

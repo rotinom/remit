@@ -1,8 +1,8 @@
 package com.rotinom.remit;
 
-import com.weber.remit.R;
-import com.weber.remit.R.id;
-import com.weber.remit.R.layout;
+import com.rotinom.remit.R;
+import com.rotinom.remit.R.id;
+import com.rotinom.remit.R.layout;
 
 import android.content.Intent;
 import android.os.Bundle;

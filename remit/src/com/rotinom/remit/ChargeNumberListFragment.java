@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.rotinom.remit.dummy.DummyContent;
-import com.weber.remit.R;
+import com.rotinom.remit.R;
 
 /**
  * A list fragment representing a list of ChargeNumbers. This fragment
