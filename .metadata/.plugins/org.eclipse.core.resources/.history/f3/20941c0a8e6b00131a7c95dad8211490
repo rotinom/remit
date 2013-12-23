@@ -1,0 +1,29 @@
+package com.rotinom.remit;
+
+import com.parse.ParseObject;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+
+public class CrnTextWatcher implements TextWatcher {
+
+	@Override
+	public void afterTextChanged(Editable arg0) {
+		
+		AutoCompleteTextView tv = (AutoCompleteTextView)arg0;
+		
+		// TODO Auto-generated method stub
+		ParseObject po = new ParseObject("CRN");
+		po.put("crn", (AutoCompleteTextView)arg0.getText().toString());
+
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+	}
+
+	@Override
+	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+	}
+
+}

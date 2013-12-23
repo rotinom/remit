@@ -1,5 +1,8 @@
 package com.rotinom.remit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.weber.remit.R;
 import com.weber.remit.R.id;
 import com.weber.remit.R.layout;
@@ -8,21 +11,29 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseAnalytics;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
@@ -104,10 +115,6 @@ public class ChargeNumberListActivity extends FragmentActivity
             ((ChargeNumberListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.chargenumber_list))
                     .setActivateOnItemClick(true);
-            
-            CalendarView cv = (CalendarView)findViewById(R.id.calendar_view);
-            cv.setShownWeekCount(1);
-            cv.setShowWeekNumber(false);
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
@@ -177,6 +184,28 @@ public class ChargeNumberListActivity extends FragmentActivity
     	return true;
     }
     
+    protected boolean checkForDialogErrors(Dialog dialog){
+    	
+        final AutoCompleteTextView crn_et = 
+        		(AutoCompleteTextView)dialog.findViewById(R.id.edit_crn_number);
+        final EditText desc_et = 
+        		(EditText)dialog.findViewById(R.id.edit_crn_desc );
+        
+        // Check the CRN length
+		if(6 != crn_et.getText().length()){
+			crn_et.setError("Charge number must be 6 digits");
+			return false;
+		}
+		
+		// Check the description
+		if(0 == desc_et.getText().length()){
+			desc_et.setError("Must not be empty");
+			return false;
+		}
+		
+		return true;
+    }
+    
     /**
      * Show the "add charge number" dialog
      */
@@ -185,6 +214,68 @@ public class ChargeNumberListActivity extends FragmentActivity
         dialog.setContentView(R.layout.dialog_add_crn);
         dialog.setTitle("Add Charge Number");
         
+        // Get the CRN AutoComplete field
+        final AutoCompleteTextView crn_et = 
+        		(AutoCompleteTextView)dialog.findViewById(R.id.edit_crn_number);
+        
+        // Hook up an adapter to it
+        final List<String> crn_numbers = new ArrayList<String>();
+        ArrayAdapter<String> default_adapter = 
+        		new ArrayAdapter<String>(this, R.id.edit_crn_number, crn_numbers);
+        
+        crn_et.setAdapter(default_adapter);
+        crn_et.setThreshold(2);
+
+        
+        // Add a text changed listener
+        crn_et.addTextChangedListener(new TextWatcher(){
+
+			@Override
+			public void afterTextChanged(Editable arg0) {
+				String str = arg0.toString();
+				
+				// Don't search if we only have a few characters
+				if(str.length() < 2){
+					return;
+				}
+				
+				// TODO Auto-generated method stub
+				ParseQuery<ParseObject> query = ParseQuery.getQuery("CRN");
+				query.whereStartsWith("crn", str);
+				
+				query.findInBackground(new FindCallback<ParseObject>(){
+					@Override
+					public void done(List<ParseObject> objects, ParseException e) {
+						crn_numbers.clear();
+						for(ParseObject obj : objects){
+							String crn = obj.getString("crn");
+							Log.d("CrnTextWatcher", "Grabbed crn: " + crn);
+							crn_numbers.add(crn);
+						}
+						ArrayAdapter<String> adapter = 
+				        		new ArrayAdapter<String>(
+				        				ChargeNumberListActivity.this, 
+				        				R.id.edit_crn_number, 
+				        				crn_numbers);
+						crn_et.setAdapter(adapter);
+						adapter.notifyDataSetChanged();
+					}
+					
+				});
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+
+			@Override
+			public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+        	
+        });
+        
+        final EditText desc_et = 
+        		(EditText)dialog.findViewById(R.id.edit_crn_desc);
+        
+
         
         // Set up add button click handlers
         Button add_button = (Button)dialog.findViewById(R.id.add_crn_button);
@@ -193,7 +284,6 @@ public class ChargeNumberListActivity extends FragmentActivity
 			@Override
 			public void onClick(View v) {
 				Toast.makeText(ChargeNumberListActivity.this, "Adding CRN to list", Toast.LENGTH_SHORT).show();
-				
 			}
             // Perform button logic
         });
@@ -206,19 +296,18 @@ public class ChargeNumberListActivity extends FragmentActivity
 			public void onClick(View v) {
 				Toast.makeText(ChargeNumberListActivity.this, "Creating new CRN and adding to list", Toast.LENGTH_SHORT).show();
 				
-				EditText crn_et = (EditText)dialog.findViewById(R.id.edit_crn_number);
-				if(0 == crn_et.getText().length()){
+				if(!checkForDialogErrors(dialog)){
 					return;
 				}
 				
-				EditText desc_et = (EditText)dialog.findViewById(R.id.edit_crn_desc );
-				if(0 == desc_et.getText().length()){
-					return;
-				}
+
 				
 				ParseObject po = new ParseObject("CRN");
 				po.put("crn", crn_et.getText().toString());
 				po.put("description", desc_et.getText().toString());
+				po.put("archived", false);
+				po.put("favorite", true);
+				
 				try {
 					po.save();
 				} catch (ParseException e) {

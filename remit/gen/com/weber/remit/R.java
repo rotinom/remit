@@ -38,7 +38,9 @@ public final class R {
         public static final int edit_crn_desc=0x7f080005;
         public static final int edit_crn_number=0x7f080004;
         public static final int fwd_one_week=0x7f080012;
+        public static final int log_out=0x7f080014;
         public static final int menu_item_cal=0x7f080010;
+        public static final int menu_item_settings=0x7f080015;
         public static final int sub_button=0x7f08000b;
         public static final int textView1=0x7f080002;
         public static final int textView2=0x7f08000d;

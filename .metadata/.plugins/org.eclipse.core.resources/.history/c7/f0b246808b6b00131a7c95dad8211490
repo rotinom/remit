@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_marginLeft="0dp"
+    android:layout_marginRight="16dp"
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerHorizontal"
+    android:orientation="vertical"
+    android:showDividers="middle"
+    tools:context=".ChargeNumberListActivity" >
+
+    <!--
+    This layout is a two-pane layout for the ChargeNumbers
+    master/detail flow. See res/values-large/refs.xml and
+    res/values-sw600dp/refs.xml for an example of layout aliases
+    that replace the single-pane version of the layout with
+    this two-pane version.
+
+    For more on layout aliases, see:
+    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
+    -->
+
+    <CalendarView
+        android:id="@+id/calendar_view"
+        android:layout_width="fill_parent"
+        android:layout_height="231dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="2.15"
+        android:orientation="horizontal" >
+
+        <fragment
+            android:id="@+id/chargenumber_list"
+            android:name="com.rotinom.remit.ChargeNumberListFragment"
+            android:layout_width="263dp"
+            android:layout_height="match_parent"
+            tools:layout="@android:layout/list_content" />
+
+        <FrameLayout
+            android:id="@+id/chargenumber_detail_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3" >
+        </FrameLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

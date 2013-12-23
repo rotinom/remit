@@ -21,11 +21,6 @@
     http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
     -->
 
-    <CalendarView
-        android:id="@+id/calendar_view"
-        android:layout_width="fill_parent"
-        android:layout_height="231dp" />
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

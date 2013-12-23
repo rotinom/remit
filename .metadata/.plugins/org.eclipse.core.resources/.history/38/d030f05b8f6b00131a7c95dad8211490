@@ -1,0 +1,50 @@
+package com.rotinom.remit;
+
+import java.util.List;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.AutoCompleteTextView;
+
+public class CrnTextWatcher implements TextWatcher {
+	
+	static List<ParseObject> objects_;
+
+	@Override
+	public void afterTextChanged(Editable arg0) {
+		
+		AutoCompleteTextView tv = (AutoCompleteTextView)arg0;
+		
+		// Don't search if we only have a few characters
+		if(tv.getText().length() < 2){
+			return;
+		}
+		
+		// TODO Auto-generated method stub
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("CRN");
+		query.whereStartsWith("crn", tv.getText().toString());
+		
+		query.findInBackground(new FindCallback<ParseObject>(){
+			@Override
+			public void done(List<ParseObject> objects, ParseException e) {
+				objects_ = objects;
+				
+			}
+			
+		});
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+	}
+
+	@Override
+	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+	}
+
+}
