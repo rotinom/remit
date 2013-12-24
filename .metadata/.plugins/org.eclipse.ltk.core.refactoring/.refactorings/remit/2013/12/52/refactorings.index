@@ -8,3 +8,6 @@
 1387840539848	Move compilation unit
 1387840811064	Encapsulate field 'crnCache_'
 1387858227637	Change Layout
+1387861590747	Rename field 'LinearLayout1'
+1387862475360	Rename field 'textView1'
+1387862547691	Rename field 'dateTextView'

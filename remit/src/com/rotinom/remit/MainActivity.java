@@ -1,6 +1,8 @@
 package com.rotinom.remit;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.parse.FindCallback;
@@ -29,9 +31,13 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+	
+	
+	protected ParseObject today_;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +93,43 @@ public class MainActivity extends Activity {
         
     	Toast.makeText(MainActivity.this, "Setting the default ACL", Toast.LENGTH_SHORT).show();
     	ParseACL.setDefaultACL(new ParseACL(ParseUser.getCurrentUser()), true);
+    	
+    	
+    	Date today = new Date();
+    	
+    	// Get the date object for the current date (today)
+    	ParseQuery<ParseObject> query = ParseQuery.getQuery("Day");
+    	query.whereEqualTo("date", today);
+    	
+    	// Execute the search
+    	ParseObject day = null;
+		try {
+			Log.d("MainActivity", "Searching for day: " + today.toString());
+			List<ParseObject> results = query.find();
+			if(results.size() > 0){
+				day = results.get(0);
+			}
+			if(results.size() != 1){
+				Log.w("MainActivity", "Multple days found for: " + today.toString());
+			}
+		} 
+		catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+    	
+    	if(null == day){
+    		Log.d("MainActivity", "No day found.  Creating one");
+    		ParseObject po = new ParseObject("Day");
+    		po.put("date", today);
+    		po.saveInBackground();
+    	}
+    	
+      // Set the text to today's date
+      TextView dayTextView = 
+      		(TextView)findViewById(R.id.dayTextView);
+      dayTextView.setText(DateFormat.getDateInstance().format(today));
+    	
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -42,7 +43,7 @@ public class ChooseCrnActivity extends Activity {
         
         crn_et.setDropDownHeight(550);
         
-        // Hook up an adapter to it
+        // Create a list of items for the autocomplete text view to work with
         final List<String> crn_numbers = new ArrayList<String>();
         for(ParseObject obj : ParseHelper.getCrnCache()){
         	crn_numbers.add(obj.getString("crn"));
@@ -57,6 +58,14 @@ public class ChooseCrnActivity extends Activity {
         crn_et.setAdapter(default_adapter);
         crn_et.setThreshold(1);
 
+        
+        crn_et.setOnFocusChangeListener(new OnFocusChangeListener() {          
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                	checkForDialogErrors();
+                } 
+            }
+        });
         
 //        // Add a text changed listener
 //        crn_et.addTextChangedListener(new TextWatcher(){
@@ -107,7 +116,13 @@ public class ChooseCrnActivity extends Activity {
         final EditText desc_et = 
         		(EditText)findViewById(R.id.edit_crn_desc);
         
-
+        desc_et.setOnFocusChangeListener(new OnFocusChangeListener() {          
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                	checkForDialogErrors();
+                } 
+            }
+        });
         
         // Set up add button click handlers
         Button add_button = (Button)findViewById(R.id.add_crn_button);
