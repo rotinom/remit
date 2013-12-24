@@ -8,4 +8,5 @@
 <fullyQualifiedTypeName name="android.util.Log"/>
 <fullyQualifiedTypeName name="android.widget.ArrayAdapter"/>
 <fullyQualifiedTypeName name="android.text.TextWatcher"/>
+<fullyQualifiedTypeName name="com.rotinom.remit.dialogs.ChooseCrnActivity"/>
 </qualifiedTypeNameHistroy>

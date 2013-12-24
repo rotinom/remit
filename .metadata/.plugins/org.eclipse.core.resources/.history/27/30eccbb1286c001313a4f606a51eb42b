@@ -1,0 +1,14 @@
+package com.rotinom.remit;
+
+public class ParseHelper {
+	
+	static private ParseHelper instance_ = new ParseHelper();
+	
+	private ParseHelper(){
+	}
+	
+	public ParseHelper instance(){
+		return instance_;
+	}
+
+}

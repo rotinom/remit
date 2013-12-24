@@ -1,0 +1,177 @@
+package com.rotinom.remit.dialogs;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.rotinom.remit.MainActivity;
+import com.rotinom.remit.ParseHelper;
+import com.rotinom.remit.R;
+import com.rotinom.remit.R.layout;
+import com.rotinom.remit.R.menu;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.app.Dialog;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+public class ChooseCrnActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_choose_crn);
+		
+        setTitle("Add Charge Number");
+        
+        // Get the CRN AutoComplete field
+        final AutoCompleteTextView crn_et = 
+        		(AutoCompleteTextView)findViewById(R.id.edit_crn_number);
+        
+        // Hook up an adapter to it
+        final List<String> crn_numbers = new ArrayList<String>();
+        for(ParseObject obj : ParseHelper.getCrnCache()){
+        	crn_numbers.add(obj.getString("crn"));
+        }
+        
+        ArrayAdapter<String> default_adapter = 
+        		new ArrayAdapter<String>(
+        				this, 
+        				android.R.layout.simple_dropdown_item_1line, 
+        				crn_numbers);
+        
+        crn_et.setAdapter(default_adapter);
+        crn_et.setThreshold(1);
+
+        
+//        // Add a text changed listener
+//        crn_et.addTextChangedListener(new TextWatcher(){
+//
+//			@Override
+//			public void afterTextChanged(Editable arg0) {
+//				String str = arg0.toString();
+//				
+//				// Don't search if we only have one character
+//				if(str.length() < 1){
+//					return;
+//				}
+//				
+//				// Find CRN's that start with our string
+//				ParseQuery<ParseObject> query = ParseQuery.getQuery("CRN");
+//				query.whereStartsWith("crn", str);
+//				query.orderByDescending("createdAt");
+//				
+//				query.findInBackground(new FindCallback<ParseObject>(){
+//					@Override
+//					public void done(List<ParseObject> objects, ParseException e) {
+//						crn_numbers.clear();
+//						for(ParseObject obj : objects){
+//							String crn = ;
+//							Log.d("CrnTextWatcher", "Grabbed crn: " + crn);
+//							crn_numbers.add(crn);
+//						}
+//
+//						ArrayAdapter<String> adapter = 
+//				        		new ArrayAdapter<String>(
+//				        				ChooseCrnActivity.this, 
+//				        				android.R.layout.simple_dropdown_item_1line, 
+//				        				ParseHelper.getCrnCache());
+//						crn_et.setAdapter(adapter);
+//						adapter.notifyDataSetChanged();
+//					}
+//				});
+//			}
+//
+//			@Override
+//			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+//
+//			@Override
+//			public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+//        	
+//        });
+        
+        final EditText desc_et = 
+        		(EditText)findViewById(R.id.edit_crn_desc);
+        
+
+        
+        // Set up add button click handlers
+        Button add_button = (Button)findViewById(R.id.add_crn_button);
+        add_button.setOnClickListener(new View.OnClickListener() 
+        {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(ChooseCrnActivity.this, "Adding CRN to list", Toast.LENGTH_SHORT).show();
+			}
+            // Perform button logic
+        });
+        
+        
+        Button create_button = (Button)findViewById(R.id.create_crn_button);
+        create_button.setOnClickListener(new View.OnClickListener() 
+        {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(ChooseCrnActivity.this, "Creating new CRN and adding to list", Toast.LENGTH_SHORT).show();
+				
+				if(!checkForDialogErrors()){
+					return;
+				}
+				
+				ParseObject po = new ParseObject("CRN");
+				po.put("crn", crn_et.getText().toString());
+				po.put("description", desc_et.getText().toString());
+				po.put("archived", false);
+				po.put("favorite", true);
+				
+				// Save the new number
+				po.saveEventually();
+				finish();
+			}
+        });		
+		
+		
+	}
+
+    protected boolean checkForDialogErrors(){
+    	
+        AutoCompleteTextView crn_et = 
+        		(AutoCompleteTextView)findViewById(R.id.edit_crn_number);
+        EditText desc_et = 
+        		(EditText)findViewById(R.id.edit_crn_desc );
+        
+        // Check the CRN length
+		if(6 != crn_et.getText().length()){
+			crn_et.setError("Charge number must be 6 digits");
+			return false;
+		}
+		
+		// Check the description
+		if(0 == desc_et.getText().length()){
+			desc_et.setError("Must not be empty");
+			return false;
+		}
+		
+		return true;
+    }
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.choose_crn, menu);
+		return true;
+	}
+
+}

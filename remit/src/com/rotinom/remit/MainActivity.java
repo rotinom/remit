@@ -12,6 +12,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
+import com.rotinom.remit.dialogs.ChooseCrnActivity;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -36,42 +37,56 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		// Initialize the parse.com subsystem
-        Parse.initialize(
-    		this, 
-    		"KYO62SPM3uuI5lVr7dMWkIx8j9pkk0rInAMtYJnw", 
-    		"HGu1gsWIEcqHajBsYRhGGQM0of387ZeMnoqwV3O7");
         
-        ParseAnalytics.trackAppOpened(getIntent());
+        ParseHelper ph = ParseHelper.instance(this.getApplicationContext());
         
         
         // See if we need to sign up
         if (null == ParseUser.getCurrentUser()) {
+
+        	String username = "rotinom";
+        	String password = "abc123";
+        	String email    = "rotinom@gmail.com";
         	
-        	// Setup the required fields
-        	ParseUser user = new ParseUser();
-        	user.setUsername("rotinom");
-        	user.setPassword("abc123");
-        	user.setEmail("rotinom@gmail.com");
-        	 
-        	user.signUpInBackground(new SignUpCallback() {
-        		public void done(ParseException e) {
-        			if (e == null) {
-        				Toast.makeText(MainActivity.this, "Signing up", Toast.LENGTH_SHORT).show();
-        				ParseACL.setDefaultACL(new ParseACL(ParseUser.getCurrentUser()), true);
-        				
-        			} 
-        			else {
-        				Toast.makeText(MainActivity.this, "Signup failed", Toast.LENGTH_SHORT).show();
-        			}
-        		}
-        	});
+        	
+        	// Try to log in
+        	ParseUser user = null;
+        	boolean mustRegister = false;
+			try {
+				user = ParseUser.logIn(username, password);
+			} 
+			catch (ParseException e1) {
+				mustRegister = true;
+				e1.printStackTrace();
+			}
+        	
+        	// Log in failed
+        	if(null == user || mustRegister) {
+        		user = new ParseUser();
+        		
+        		// Set the parameters
+            	user.setUsername(username);
+            	user.setPassword(password);
+            	user.setEmail(email);
+            	
+            	//Sign up for a new account
+            	user.signUpInBackground(new SignUpCallback() {
+            		public void done(ParseException e) {
+            			if (e == null) {
+            				Toast.makeText(MainActivity.this, "Signing up", Toast.LENGTH_SHORT).show();
+            				ParseACL.setDefaultACL(new ParseACL(ParseUser.getCurrentUser()), true);
+            			} 
+            			else {
+            				Toast.makeText(MainActivity.this, "Signup failed", Toast.LENGTH_SHORT).show();
+            			}
+            		}
+            	});
+        	}
+
         }
-        else {
-        	Toast.makeText(MainActivity.this, "No need to sign up", Toast.LENGTH_SHORT).show();
-        	ParseACL.setDefaultACL(new ParseACL(ParseUser.getCurrentUser()), true);
-    	}
+        
+    	Toast.makeText(MainActivity.this, "Setting the default ACL", Toast.LENGTH_SHORT).show();
+    	ParseACL.setDefaultACL(new ParseACL(ParseUser.getCurrentUser()), true);
 	}
 
 	@Override
@@ -106,145 +121,128 @@ public class MainActivity extends Activity {
     	return true;
     }
     
-
-    
-    protected boolean checkForDialogErrors(Dialog dialog){
-    	
-        final AutoCompleteTextView crn_et = 
-        		(AutoCompleteTextView)dialog.findViewById(R.id.edit_crn_number);
-        final EditText desc_et = 
-        		(EditText)dialog.findViewById(R.id.edit_crn_desc );
-        
-        // Check the CRN length
-		if(6 != crn_et.getText().length()){
-			crn_et.setError("Charge number must be 6 digits");
-			return false;
-		}
-		
-		// Check the description
-		if(0 == desc_et.getText().length()){
-			desc_et.setError("Must not be empty");
-			return false;
-		}
-		
-		return true;
-    }
     
     /**
      * Show the "add charge number" dialog
      */
     protected void addCrn(){
-    	final Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.dialog_add_crn);
-        dialog.setTitle("Add Charge Number");
-        
-        // Get the CRN AutoComplete field
-        final AutoCompleteTextView crn_et = 
-        		(AutoCompleteTextView)dialog.findViewById(R.id.edit_crn_number);
-        
-        // Hook up an adapter to it
-        final List<String> crn_numbers = new ArrayList<String>();
-        ArrayAdapter<String> default_adapter = 
-        		new ArrayAdapter<String>(this, R.id.edit_crn_number, crn_numbers);
-        
-        crn_et.setAdapter(default_adapter);
-        crn_et.setThreshold(2);
-
-        
-        // Add a text changed listener
-        crn_et.addTextChangedListener(new TextWatcher(){
-
-			@Override
-			public void afterTextChanged(Editable arg0) {
-				String str = arg0.toString();
-				
-				// Don't search if we only have a few characters
-				if(str.length() < 2){
-					return;
-				}
-				
-				// TODO Auto-generated method stub
-				ParseQuery<ParseObject> query = ParseQuery.getQuery("CRN");
-				query.whereStartsWith("crn", str);
-				
-				query.findInBackground(new FindCallback<ParseObject>(){
-					@Override
-					public void done(List<ParseObject> objects, ParseException e) {
-						crn_numbers.clear();
-						for(ParseObject obj : objects){
-							String crn = obj.getString("crn");
-							Log.d("CrnTextWatcher", "Grabbed crn: " + crn);
-							crn_numbers.add(crn);
-						}
-						ArrayAdapter<String> adapter = 
-				        		new ArrayAdapter<String>(
-				        				MainActivity.this, 
-				        				R.id.edit_crn_number, 
-				        				crn_numbers);
-						crn_et.setAdapter(adapter);
-						adapter.notifyDataSetChanged();
-					}
-					
-				});
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
-
-			@Override
-			public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
-        	
-        });
-        
-        final EditText desc_et = 
-        		(EditText)dialog.findViewById(R.id.edit_crn_desc);
+        Intent intent = new Intent(this, ChooseCrnActivity.class);
+        startActivity(intent);
         
 
         
-        // Set up add button click handlers
-        Button add_button = (Button)dialog.findViewById(R.id.add_crn_button);
-        add_button.setOnClickListener(new View.OnClickListener() 
-        {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(MainActivity.this, "Adding CRN to list", Toast.LENGTH_SHORT).show();
-			}
-            // Perform button logic
-        });
+        
+//    	final Dialog dialog = new Dialog(this);
+//        dialog.setContentView(R.layout.dialog_add_crn);
+//        dialog.setTitle("Add Charge Number");
+//        
+//        // Get the CRN AutoComplete field
+//        final AutoCompleteTextView crn_et = 
+//        		(AutoCompleteTextView)dialog.findViewById(R.id.edit_crn_number);
+//        
+//        // Hook up an adapter to it
+//        final List<String> crn_numbers = new ArrayList<String>();
+//        ArrayAdapter<String> default_adapter = 
+//        		new ArrayAdapter<String>(this, R.id.edit_crn_number, crn_numbers);
+//        
+//        crn_et.setAdapter(default_adapter);
+//        crn_et.setThreshold(2);
+//
+//        
+//        // Add a text changed listener
+//        crn_et.addTextChangedListener(new TextWatcher(){
+//
+//			@Override
+//			public void afterTextChanged(Editable arg0) {
+//				String str = arg0.toString();
+//				
+//				// Don't search if we only have a few characters
+//				if(str.length() < 2){
+//					return;
+//				}
+//				
+//				// TODO Auto-generated method stub
+//				ParseQuery<ParseObject> query = ParseQuery.getQuery("CRN");
+//				query.whereStartsWith("crn", str);
+//				
+//				query.findInBackground(new FindCallback<ParseObject>(){
+//					@Override
+//					public void done(List<ParseObject> objects, ParseException e) {
+//						crn_numbers.clear();
+//						for(ParseObject obj : objects){
+//							String crn = obj.getString("crn");
+//							Log.d("CrnTextWatcher", "Grabbed crn: " + crn);
+//							crn_numbers.add(crn);
+//						}
+//						ArrayAdapter<String> adapter = 
+//				        		new ArrayAdapter<String>(
+//				        				MainActivity.this, 
+//				        				R.id.edit_crn_number, 
+//				        				crn_numbers);
+//						crn_et.setAdapter(adapter);
+//						adapter.notifyDataSetChanged();
+//					}
+//					
+//				});
+//			}
+//
+//			@Override
+//			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+//
+//			@Override
+//			public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+//        	
+//        });
+//        
+//        final EditText desc_et = 
+//        		(EditText)dialog.findViewById(R.id.edit_crn_desc);
+//        
+//
+//        
+//        // Set up add button click handlers
+//        Button add_button = (Button)dialog.findViewById(R.id.add_crn_button);
+//        add_button.setOnClickListener(new View.OnClickListener() 
+//        {
+//			@Override
+//			public void onClick(View v) {
+//				Toast.makeText(MainActivity.this, "Adding CRN to list", Toast.LENGTH_SHORT).show();
+//			}
+//            // Perform button logic
+//        });
+//        
+//        
+//        Button create_button = (Button)dialog.findViewById(R.id.create_crn_button);
+//        create_button.setOnClickListener(new View.OnClickListener() 
+//        {
+//			@Override
+//			public void onClick(View v) {
+//				Toast.makeText(MainActivity.this, "Creating new CRN and adding to list", Toast.LENGTH_SHORT).show();
+//				
+//				if(!checkForDialogErrors(dialog)){
+//					return;
+//				}
+//				
+//
+//				
+//				ParseObject po = new ParseObject("CRN");
+//				po.put("crn", crn_et.getText().toString());
+//				po.put("description", desc_et.getText().toString());
+//				po.put("archived", false);
+//				po.put("favorite", true);
+//				
+//				try {
+//					po.save();
+//				} catch (ParseException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				dialog.cancel();
+//			}
+//            // Perform button logic
+//        });
         
         
-        Button create_button = (Button)dialog.findViewById(R.id.create_crn_button);
-        create_button.setOnClickListener(new View.OnClickListener() 
-        {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(MainActivity.this, "Creating new CRN and adding to list", Toast.LENGTH_SHORT).show();
-				
-				if(!checkForDialogErrors(dialog)){
-					return;
-				}
-				
-
-				
-				ParseObject po = new ParseObject("CRN");
-				po.put("crn", crn_et.getText().toString());
-				po.put("description", desc_et.getText().toString());
-				po.put("archived", false);
-				po.put("favorite", true);
-				
-				try {
-					po.save();
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				dialog.cancel();
-			}
-            // Perform button logic
-        });
-        
-        
-        dialog.show();
+//        dialog.show();
     }
 
 

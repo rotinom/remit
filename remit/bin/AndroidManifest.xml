@@ -33,12 +33,18 @@
             android:label="@string/title_activity_calendar" >
         </activity>
         <activity
-            android:name="com.weber.remit.MainActivity"
+            android:name="com.rotinom.remit.MainActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.rotinom.remit.dialogs.ChooseCrnActivity"
+            android:label="@string/title_activity_choose_crn" 
+            android:theme="@android:style/Theme.Holo.Dialog"
+            >
         </activity>
     </application>
 

@@ -67,20 +67,23 @@ public final class R {
          */
         public static final int activity_chargenumber_list=0x7f030002;
         public static final int activity_chargenumber_twopane=0x7f030003;
-        public static final int activity_main=0x7f030004;
-        public static final int dialog_add_crn=0x7f030005;
-        public static final int fragment_chargenumber_detail=0x7f030006;
-        public static final int item_chargenumber=0x7f030007;
+        public static final int activity_choose_crn=0x7f030004;
+        public static final int activity_main=0x7f030005;
+        public static final int dialog_add_crn=0x7f030006;
+        public static final int fragment_chargenumber_detail=0x7f030007;
+        public static final int item_chargenumber=0x7f030008;
     }
     public static final class menu {
         public static final int calendar=0x7f070000;
-        public static final int main=0x7f070001;
+        public static final int choose_crn=0x7f070001;
+        public static final int main=0x7f070002;
     }
     public static final class string {
         public static final int action_settings=0x7f050003;
         public static final int app_name=0x7f050000;
         public static final int hello_world=0x7f050004;
         public static final int title_activity_calendar=0x7f050002;
+        public static final int title_activity_choose_crn=0x7f050006;
         public static final int title_activity_main=0x7f050005;
         public static final int title_chargenumber_detail=0x7f050001;
     }

@@ -1,0 +1,50 @@
+package com.rotinom.remit;
+
+import java.util.List;
+
+import android.util.Log;
+import android.widget.ArrayAdapter;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.rotinom.remit.dialogs.ChooseCrnActivity;
+
+public class ParseHelper {
+	
+	static private ParseHelper instance_ = new ParseHelper();
+	static private List<ParseObject> crnCache_;
+	
+	private ParseHelper(){
+		queryCrnCache();
+	}
+	
+	public ParseHelper instance(){
+		return instance_;
+	}
+	
+	private void queryCrnCache(){
+		
+		// Create our query
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("CRN");
+		query.orderByDescending("createdAt");
+		
+		// Execute the query
+		query.findInBackground(new FindCallback<ParseObject>(){
+			@Override
+			public void done(List<ParseObject> objects, ParseException e) {
+				setCrnCache_(objects);
+			}
+		});
+	}
+
+	public static List<ParseObject> getCrnCache() {
+		return crnCache_;
+	}
+
+	public static void setCrnCache(List<ParseObject> crnCache_) {
+		ParseHelper.crnCache_ = crnCache_;
+	}
+
+}
